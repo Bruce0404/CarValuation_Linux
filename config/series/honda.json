@@ -1,0 +1,55 @@
+{
+  "CR-V": [
+    "cr-v",
+    "crv",
+    "vti-s",
+    "s",
+    "prestige",
+    "elite",
+    "hybrid",
+    "e:hev"
+  ],
+  "HR-V": [
+    "hr-v",
+    "hrv",
+    "s+",
+    "prestige",
+    "vti-s"
+  ],
+  "Civic": [
+    "civic",
+    "e:hev",
+    "type r",
+    "fk8",
+    "fl5",
+    "k12",
+    "k14"
+  ],
+  "Fit": [
+    "fit",
+    "e:hev",
+    "home",
+    "prizm",
+    "s"
+  ],
+  "Odyssey": [
+    "odyssey",
+    "apex",
+    "elite"
+  ],
+  "City": [
+    "city",
+    "vti-s"
+  ],
+  "Accord": [
+    "accord",
+    "hybrid"
+  ],
+  "ZR-V": [
+    "zr-v",
+    "zrv"
+  ],
+  "NSX": [
+    "nsx"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "Golf": ["Golf", "GTI", "Golf R", "Variant", "MK8", "MK7", "MK6", "eTSI", "R-Line", "Clubsport"],
+  "Tiguan": ["Tiguan", "Allspace", "380 TSI", "330 TSI", "280 TSI", "R-Line", "Elegance", "Life"],
+  "Polo": ["Polo", "GTI", "230 TSI", "Style", "R-Line", "Life", "Tech"],
+  "T-Roc": ["T-Roc", "TRoc", "330 TSI", "280 TSI", "R-Line", "R", "Style"],
+  "T-Cross": ["T-Cross", "TCross", "230 TSI", "Style", "R-Line", "Life"],
+  "Passat": ["Passat", "Variant", "Sedan", "330 TSI", "380 TSI", "TDI", "R-Line"],
+  "Arteon": ["Arteon", "Shooting Brake", "Fastback", "330 TSI", "380 TSI", "R-Line", "Elegance"],
+  "Touran": ["Touran", "280 TSI", "330 TDI", "R-Line", "Life"],
+  "Sharan": ["Sharan", "330 TDI", "280 TSI"],
+  "Caddy": ["Caddy", "Maxi", "California", "Cargo", "Van"],
+  "Transporter": ["T6.1", "T6", "T5", "Caravelle", "Multivan", "California", "Kombi", "Transporter", "Bulli"],
+  "Beetle": ["Beetle", "金龜車", "Dune", "Club", "R-Line"],
+  "Scirocco": ["Scirocco", "1.4 TSI", "2.0 TSI", "R"],
+  "Touareg": ["Touareg", "3.0 TDI", "R50"],
+  "Amarok": ["Amarok", "V6", "Aventura", "Highline", "PanAmericana"],
+  "ID-Series": ["ID.4", "ID.5", "ID.3", "ID.Buzz", "GTX", "Pro"],
+  "Vento": ["Vento"],
+  "Lupo": ["Lupo"],
+  "Bora": ["Bora"],
+  "Phaeton": ["Phaeton"]
+}

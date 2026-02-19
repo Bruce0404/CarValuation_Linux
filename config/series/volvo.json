@@ -1,0 +1,92 @@
+{
+  "XC40": [
+    "xc40",
+    "recharge",
+    "t2",
+    "t3",
+    "t4",
+    "b4",
+    "b5",
+    "ultimate",
+    "plus"
+  ],
+  "XC60": [
+    "xc60",
+    "b4",
+    "b5",
+    "t5",
+    "t6",
+    "t8",
+    "recharge",
+    "polestar",
+    "ultimate",
+    "plus"
+  ],
+  "XC90": [
+    "xc90",
+    "b5",
+    "b6",
+    "t6",
+    "t8",
+    "recharge",
+    "ultimate",
+    "inscription",
+    "momentum"
+  ],
+  "V60": [
+    "v60",
+    "cross country",
+    "b4",
+    "b5",
+    "t4",
+    "t5",
+    "t6",
+    "t8",
+    "recharge",
+    "ultimate"
+  ],
+  "V90": [
+    "v90",
+    "cross country",
+    "b5",
+    "t6",
+    "t8"
+  ],
+  "S60": [
+    "s60",
+    "b4",
+    "b5",
+    "t4",
+    "t5",
+    "t6",
+    "t8",
+    "recharge",
+    "ultimate"
+  ],
+  "S90": [
+    "s90",
+    "b4",
+    "b5",
+    "t5",
+    "t6",
+    "t8",
+    "recharge",
+    "ultimate",
+    "inscription"
+  ],
+  "C40": [
+    "c40",
+    "recharge",
+    "ultimate",
+    "plus"
+  ],
+  "EX30": [
+    "ex30",
+    "single motor",
+    "twin motor ultra"
+  ],
+  "EX90": [
+    "ex90",
+    "ultra"
+  ]
+}

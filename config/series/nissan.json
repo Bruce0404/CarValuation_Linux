@@ -1,0 +1,31 @@
+{
+  "Kicks": [
+    "kicks",
+    "e-power"
+  ],
+  "X-Trail": [
+    "x-trail",
+    "e-power"
+  ],
+  "Sentra": [
+    "sentra",
+    "b17",
+    "b18"
+  ],
+  "Tiida": [
+    "tiida",
+    "itiida"
+  ],
+  "Livina": [
+    "livina"
+  ],
+  "Altima": [
+    "altima"
+  ],
+  "Z-Series": [
+    "370z",
+    "400z",
+    "gt-r",
+    "r35"
+  ]
+}

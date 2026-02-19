@@ -1,0 +1,54 @@
+{
+  "Mazda2": [
+    "mazda2",
+    "mazda 2"
+  ],
+  "Mazda3": [
+    "mazda3",
+    "mazda 3",
+    "skyactiv-x",
+    "signature",
+    "bose",
+    "4d",
+    "5d"
+  ],
+  "Mazda6": [
+    "mazda6",
+    "mazda 6",
+    "wagon",
+    "sedan"
+  ],
+  "CX-3": [
+    "cx-3",
+    "cx3"
+  ],
+  "CX-30": [
+    "cx-30",
+    "cx30"
+  ],
+  "CX-5": [
+    "cx-5",
+    "cx5",
+    "signature",
+    "carbon edition"
+  ],
+  "CX-9": [
+    "cx-9",
+    "cx9",
+    "captain seat"
+  ],
+  "CX-60": [
+    "cx-60",
+    "cx60"
+  ],
+  "CX-90": [
+    "cx-90",
+    "cx90"
+  ],
+  "MX-5": [
+    "mx-5",
+    "mx5",
+    "rf",
+    "roadster"
+  ]
+}

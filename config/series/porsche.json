@@ -1,0 +1,58 @@
+{
+  "911": [
+    "911",
+    "carrera",
+    "targa",
+    "turbo",
+    "gt3",
+    "gt2",
+    "991",
+    "992",
+    "997",
+    "996"
+  ],
+  "718": [
+    "718",
+    "boxster",
+    "cayman",
+    "gts",
+    "gt4",
+    "spyder",
+    "981",
+    "982"
+  ],
+  "Cayenne": [
+    "cayenne",
+    "coupe",
+    "e-hybrid",
+    "turbo gt",
+    "s",
+    "958",
+    "9ya"
+  ],
+  "Macan": [
+    "macan",
+    "macan s",
+    "macan gts",
+    "macan turbo",
+    "ev"
+  ],
+  "Panamera": [
+    "panamera",
+    "4",
+    "4s",
+    "gts",
+    "turbo s",
+    "e-hybrid",
+    "sport turismo"
+  ],
+  "Taycan": [
+    "taycan",
+    "4s",
+    "gts",
+    "turbo",
+    "turbo s",
+    "cross turismo",
+    "sport turismo"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "Swift": [
+    "swift",
+    "sport",
+    "hybrid",
+    "mild hybrid",
+    "zc33s",
+    "zc13s"
+  ],
+  "Jimny": [
+    "jimny",
+    "jb74",
+    "jb43",
+    "sierra",
+    "5-door"
+  ],
+  "Vitara": [
+    "vitara",
+    "s",
+    "allgrip",
+    "hybrid"
+  ],
+  "Carry": [
+    "carry",
+    "super carry"
+  ],
+  "Ignis": [
+    "ignis",
+    "hybrid"
+  ],
+  "S-Cross": [
+    "s-cross",
+    "sx4",
+    "hybrid",
+    "allgrip"
+  ],
+  "Baleno": [
+    "baleno"
+  ],
+  "Solio": [
+    "solio"
+  ]
+}

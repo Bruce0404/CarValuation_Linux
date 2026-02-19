@@ -1,0 +1,23 @@
+{
+  "EV-Series": [
+    "ev6",
+    "ev9"
+  ],
+  "Sportage": [
+    "sportage",
+    "x-line"
+  ],
+  "Carnival": [
+    "carnival"
+  ],
+  "Sorento": [
+    "sorento"
+  ],
+  "Stonic": [
+    "stonic"
+  ],
+  "Picanto": [
+    "picanto",
+    "gt-line"
+  ]
+}

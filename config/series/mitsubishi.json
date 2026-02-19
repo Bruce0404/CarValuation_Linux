@@ -1,0 +1,29 @@
+{
+  "Outlander": [
+    "outlander",
+    "phev"
+  ],
+  "Eclipse-Cross": [
+    "eclipse cross",
+    "phev"
+  ],
+  "Colt-Plus": [
+    "colt plus"
+  ],
+  "Lancer": [
+    "lancer",
+    "fortis",
+    "sportback"
+  ],
+  "Zinger": [
+    "zinger"
+  ],
+  "Delica": [
+    "delica",
+    "veryca",
+    "cmc",
+    "a180",
+    "a190",
+    "a210"
+  ]
+}

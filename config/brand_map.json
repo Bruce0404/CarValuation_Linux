@@ -1,0 +1,22 @@
+{
+  "BRAND_MAP": {
+    "BENZ": "Mercedes-Benz",
+    "BMW": "BMW",
+    "PORSCHE": "Porsche",
+    "LEXUS": "Lexus",
+    "AUDI": "Audi",
+    "TESLA": "Tesla",
+    "TOYOTA": "Toyota",
+    "VOLVO": "Volvo",
+    "MAZDA": "Mazda",
+    "HONDA": "Honda",
+    "NISSAN": "Nissan",
+    "MITSUBISHI": "Mitsubishi",
+    "HYUNDAI": "Hyundai",
+    "KIA": "Kia",
+    "SUBARU": "Subaru",
+    "SUZUKI": "Suzuki",
+    "INFINITI": "Infiniti",
+    "VOLKSWAGEN": "Volkswagen"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "Model-3": [
+    "model 3",
+    "standard range",
+    "long range",
+    "performance",
+    "rwd",
+    "ludicrous"
+  ],
+  "Model-Y": [
+    "model y",
+    "long range",
+    "performance",
+    "rwd"
+  ],
+  "Model-X": [
+    "model x",
+    "plaid",
+    "long range",
+    "performance",
+    "100d",
+    "90d",
+    "75d"
+  ],
+  "Model-S": [
+    "model s",
+    "plaid",
+    "long range",
+    "performance",
+    "100d",
+    "90d",
+    "75d"
+  ],
+  "Cybertruck": [
+    "cybertruck",
+    "cyberbeast",
+    "awd"
+  ]
+}

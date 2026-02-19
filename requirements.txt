@@ -1,0 +1,8 @@
+fire==0.7.1
+loguru==0.7.3
+playwright==1.41.0
+pydantic==2.10.6
+pytest==8.3.5
+pytest-asyncio==0.24.0
+
+

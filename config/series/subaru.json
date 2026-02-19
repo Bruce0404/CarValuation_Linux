@@ -1,0 +1,56 @@
+{
+  "Forester": [
+    "forester",
+    "e-boxer",
+    "i-s",
+    "eyesight",
+    "black edition",
+    "gt edition"
+  ],
+  "XV": [
+    "xv",
+    "crosstrek",
+    "i-s",
+    "eyesight",
+    "gt edition"
+  ],
+  "Outback": [
+    "outback",
+    "i-t",
+    "eyesight"
+  ],
+  "WRX": [
+    "wrx",
+    "sti",
+    "wagon",
+    "ts",
+    "eyesight",
+    "vab",
+    "vag",
+    "vb"
+  ],
+  "Levorg": [
+    "levorg",
+    "wrx wagon",
+    "gt-s",
+    "sti sport",
+    "eyesight"
+  ],
+  "Impreza": [
+    "impreza",
+    "i-s",
+    "eyesight",
+    "hatchback"
+  ],
+  "BRZ": [
+    "brz",
+    "manual",
+    "automatic",
+    "zd8",
+    "zc6"
+  ],
+  "Solterra": [
+    "solterra",
+    "ev"
+  ]
+}

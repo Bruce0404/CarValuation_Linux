@@ -1,0 +1,72 @@
+{
+  "Q50": [
+    "q50",
+    "q50s",
+    "silver sport",
+    "blue sport",
+    "300gt",
+    "2.0t",
+    "hybrid"
+  ],
+  "Q60": [
+    "q60",
+    "q60s",
+    "red sport",
+    "2.0t",
+    "3.0t"
+  ],
+  "Q30": [
+    "q30",
+    "q30s",
+    "1.6t",
+    "2.0t"
+  ],
+  "QX30": [
+    "qx30",
+    "awd"
+  ],
+  "QX50": [
+    "qx50",
+    "vc-turbo",
+    "essential",
+    "sensory",
+    "autograph"
+  ],
+  "QX55": [
+    "qx55",
+    "vc-turbo",
+    "sensory"
+  ],
+  "QX60": [
+    "qx60",
+    "autograph",
+    "sensory",
+    "3.5",
+    "hybrid"
+  ],
+  "QX70": [
+    "qx70",
+    "fx35",
+    "fx37",
+    "fx45",
+    "fx50"
+  ],
+  "QX80": [
+    "qx80",
+    "5.6"
+  ],
+  "M-Series": [
+    "m25",
+    "m35",
+    "m37",
+    "q70",
+    "q70l"
+  ],
+  "G-Series": [
+    "g25",
+    "g35",
+    "g37",
+    "coupe",
+    "sedan"
+  ]
+}

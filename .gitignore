@@ -1,0 +1,17 @@
+# Python 暫存
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 環境與套件 (針對你的 venv 資料夾名稱)
+venv/
+.venv/
+.env
+
+# 偵錯產出物 (重要！)
+debug_page_source.html
+debug_*.png
+*.log
+
+# 系統檔案
+.DS_Store

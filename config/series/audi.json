@@ -1,0 +1,99 @@
+{
+  "A1": [
+    "a1",
+    "sportback",
+    "25 tfsi",
+    "30 tfsi"
+  ],
+  "A3": [
+    "a3",
+    "sportback",
+    "35 tfsi",
+    "s3",
+    "rs3"
+  ],
+  "A4": [
+    "a4",
+    "avant",
+    "sedan",
+    "40 tfsi",
+    "45 tfsi",
+    "s4",
+    "rs4"
+  ],
+  "A5": [
+    "a5",
+    "sportback",
+    "coupe",
+    "40 tfsi",
+    "45 tfsi",
+    "s5",
+    "rs5"
+  ],
+  "A6": [
+    "a6",
+    "avant",
+    "sedan",
+    "40 tfsi",
+    "45 tfsi",
+    "50 tfsi",
+    "s6",
+    "rs6"
+  ],
+  "A7": [
+    "a7",
+    "sportback",
+    "55 tfsi",
+    "rs7"
+  ],
+  "A8": [
+    "a8",
+    "a8 l",
+    "50 tdi",
+    "55 tfsi",
+    "s8"
+  ],
+  "Q2": [
+    "q2",
+    "35 tfsi",
+    "sq2"
+  ],
+  "Q3": [
+    "q3",
+    "sportback",
+    "35 tfsi",
+    "40 tfsi",
+    "rs q3"
+  ],
+  "Q5": [
+    "q5",
+    "sportback",
+    "40 tfsi",
+    "45 tfsi",
+    "sq5"
+  ],
+  "Q7": [
+    "q7",
+    "50 tdi",
+    "55 tfsi",
+    "sq7"
+  ],
+  "Q8": [
+    "q8",
+    "55 tfsi",
+    "rs q8",
+    "e-tron"
+  ],
+  "e-tron": [
+    "e-tron gt",
+    "rs e-tron gt",
+    "sportback",
+    "50",
+    "55"
+  ],
+  "TT": [
+    "tt",
+    "tts",
+    "tt rs"
+  ]
+}
