@@ -49,7 +49,7 @@ class Crawler8891(BaseCrawler):
 
             try:
                 self.logger.info(f"正在連線至 {target_url}...")
-                await page_obj.goto(target_url, wait_until="networkidle", timeout=60000)
+                await page_obj.goto(target_url, wait_until="domcontentloaded", timeout=120000)
                 await asyncio.sleep(2)
 
                 # 使用模糊匹配動態 Class 
@@ -90,9 +90,14 @@ class Crawler8891(BaseCrawler):
                         year_match = RE_YEAR.search(full_text)
                         year_val = int(year_match.group(1)) if year_match else 2020
                         
-                        # 4. 地區解析
-                        loc_el = await item.query_selector('span[class*="_ib-ii-item"]')
-                        location = (await loc_el.inner_text()).strip() if loc_el else "全台"
+                        # 4. 地區與里程解析
+                        info_items = await item.query_selector_all('span[class*="_ib-ii-item"]')
+                        location = "全台"
+                        mileage_raw = "0"
+                        if len(info_items) > 0:
+                            location = (await info_items[0].inner_text()).strip()
+                        if len(info_items) > 1:
+                            mileage_raw = (await info_items[1].inner_text()).strip()
 
                         # 建立物件
                         car = CarListing(
@@ -101,7 +106,7 @@ class Crawler8891(BaseCrawler):
                             title=title,
                             year=max(1990, min(2026, year_val)), 
                             price=price_val,
-                            mileage=0.0, # 里程可稍後再優化 Regex
+                            mileage=mileage_raw, # Pass raw string to the model for validation
                             location=location[:3], # 取前三個字如「桃園市」
                             link=f"https://auto.8891.com.tw{href}" if href.startswith("/") else href
                         )

@@ -31,6 +31,36 @@ def refine_original_name(raw_name: str) -> str:
     # 4. 截斷邏輯
     return refined.split('「')[0].strip()
 
+def parse_mileage(mileage_str: str | int | float) -> float:
+    """
+    將里程數從字串 (e.g., "2.8萬公里") 轉換為數字 (28000.0)
+    """
+    if isinstance(mileage_str, (int, float)):
+        return float(mileage_str)
+    
+    if not isinstance(mileage_str, str):
+        return 0.0
+
+    mileage_str = mileage_str.strip()
+    
+    try:
+        # Case 1: "2.8萬公里" or "2.8萬"
+        if "萬" in mileage_str:
+            num_part = re.search(r"(\d+\.?\d*)", mileage_str)
+            if num_part:
+                return float(num_part.group(1)) * 10000
+        
+        # Case 2: "28000公里" or "28000"
+        else:
+            num_part = re.search(r"(\d+\.?\d*)", mileage_str)
+            if num_part:
+                return float(num_part.group(1))
+    except (ValueError, TypeError):
+        return 0.0
+        
+    return 0.0
+
+
 class CarIdentifier:
     """
     品牌與車系識別器 (邏輯移植自 lib/utils.py CarIdentifier)

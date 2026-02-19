@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, field_validator, ConfigDict, model_valida
 from datetime import datetime
 from typing import Optional
 # 引入剛剛建立的清洗模組
-from src.core.cleaning import CarIdentifier, refine_original_name
+from src.core.cleaning import CarIdentifier, refine_original_name, parse_mileage
 
 # 初始化識別器 (全域單例，避免重複讀取檔案)
 identifier = CarIdentifier()
@@ -35,6 +35,10 @@ class CarListing(BaseModel):
             clean = v.replace('萬', '').replace(',', '').strip()
             return float(clean) if clean.replace('.', '').isdigit() else 0.0
         return 0.0
+
+    @field_validator('mileage', mode='before')
+    def validate_mileage(cls, v):
+        return parse_mileage(v)
 
     @model_validator(mode='after')
     def compute_metadata(self):
