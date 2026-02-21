@@ -1,58 +1,35 @@
-from pydantic import BaseModel, Field, field_validator, ConfigDict, model_validator
-from datetime import datetime
+from pydantic import BaseModel, Field
 from typing import Optional
-# 引入剛剛建立的清洗模組
-from src.core.cleaning import CarIdentifier, refine_original_name, parse_mileage
-
-# 初始化識別器 (全域單例，避免重複讀取檔案)
-identifier = CarIdentifier()
 
 class CarListing(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    """
+    定義一筆汽車市場資訊的數據模型 (Data Model)。
+    這個模型對應於 Supabase 資料庫中的 `market_listings` 表格。
+    Pydantic 會自動驗證傳入數據的類型，確保數據一致性。
+    """
     
-    source: str
-    external_id: str
+    # === 必填欄位 (Required Fields) ===
+    # 這些是構成一筆有效車輛資訊的核心數據。
     
-    # 原始資料
-    original_title: str = Field(..., alias="title") # 接收爬蟲抓到的原始標題
-    link: str
-    
-    # 清洗後資料 (這些欄位由 validator 自動產生，爬蟲不用填)
-    brand: str = "UNKNOWN"
-    series: str = "其他"
-    processed_title: str = ""
-    
-    year: int = Field(..., ge=1990, le=2026)
-    price: float = Field(..., ge=0)
-    mileage: float = Field(default=0.0)
-    location: str
-    crawled_at: datetime = Field(default_factory=datetime.now)
+    source: str = Field(..., description="數據來源平台，例如 'site_8891'")
+    external_id: str = Field(..., description="來源平台上的唯一標識符，用於 upsert 操作")
+    link: str = Field(..., description="車輛資訊頁面的原始連結")
+    year: int = Field(..., ge=1990, le=2026, description="車輛製造年份，範圍限制在 1990-2026")
+    price: float = Field(..., description="車輛售價，單位為（萬）")
+    mileage: float = Field(..., description="車輛行駛里程，單位為（萬公里）")
 
-    @field_validator('price', mode='before')
-    def parse_price(cls, v):
-        if isinstance(v, (int, float)): return float(v)
-        if isinstance(v, str):
-            clean = v.replace('萬', '').replace(',', '').strip()
-            return float(clean) if clean.replace('.', '').isdigit() else 0.0
-        return 0.0
+    # === 選填欄位 (Optional Fields) ===
+    # 這些欄位提供了更豐富的資訊，但不一定每筆數據都存在。
+    
+    original_title: Optional[str] = Field(None, description="爬蟲抓取到的原始、未經處理的標題")
+    processed_title: Optional[str] = Field(None, description="經過清洗和標準化後的標題")
+    brand: Optional[str] = Field(None, description="從標題中識別出的車輛品牌")
+    series: Optional[str] = Field(None, description="從標題中識別出的車系")
+    location: Optional[str] = Field(None, description="車輛所在的地理位置")
 
-    @field_validator('mileage', mode='before')
-    def validate_mileage(cls, v):
-        return parse_mileage(v)
-
-    @model_validator(mode='after')
-    def compute_metadata(self):
-        """
-        自動計算清洗後的標題、品牌與車系
-        """
-        # 1. 標題去雜訊
-        self.processed_title = refine_original_name(self.original_title)
-        
-        # 2. 辨識品牌車系 (預設使用 UNKNOWN 作為原始品牌提示)
-        # 如果爬蟲有傳入 brand 可以在這裡優化，目前先用標題硬解
-        detected_brand, detected_series = identifier.identify(self.processed_title)
-        
-        self.brand = detected_brand
-        self.series = detected_series
-        
-        return self
+    # Pydantic v2 的 model_config，可以進行一些模型的額外配置
+    class Config:
+        # Pydantic 將能更好地處理 ORM 對象，雖然我們目前沒直接用 ORM
+        orm_mode = True
+        # 允許模型接收額外未定義的欄位而不拋出錯誤
+        extra = 'ignore'

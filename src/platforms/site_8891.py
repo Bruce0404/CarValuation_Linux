@@ -1,120 +1,103 @@
 import asyncio
 import re
 import random
-import unicodedata
-from typing import List
+from typing import List, Dict, Any
 from playwright.async_api import async_playwright
-from src.platforms.base import BaseCrawler 
+from src.platforms.base import BaseCrawler
 from src.models.car import CarListing
-
-# 更加強健的正則表達式
-RE_PRICE = re.compile(r'([\d,]+\.?\d*)')
-RE_YEAR = re.compile(r'(19\d{2}|20\d{2})') # 匹配 19xx 或 20xx
+from src.core.cleaning import clean_car_data # 導入新的主清洗函數
 
 class Crawler8891(BaseCrawler):
-    def __init__(self, headless: bool = True):
-        super().__init__(headless)
-        
+    """
+    針對 8891 網站的爬蟲實現。
+    繼承自 BaseCrawler，專門負責從 8891 抓取、解析車輛列表。
+    """
+    
     BASE_URL = "https://auto.8891.com.tw/usedauto-index.html"
-    USER_AGENTS = [
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-    ]
+    SOURCE_NAME = "site_8891"
 
-    async def fetch_listings(self, page: int = 1) -> List[CarListing]:
+    async def fetch_listings(self, page_num: int = 1) -> List[CarListing]:
+        """
+        抓取指定頁數的車輛列表。
+        @param page_num: 要抓取的頁碼。
+        @return: 一個包含 CarListing 對象的列表。
+        """
         results = []
-        target_url = f"{self.BASE_URL}?page={page}"
+        target_url = f"{self.BASE_URL}?page={page_num}"
         
         async with async_playwright() as p:
-            browser = await p.chromium.launch(
-                headless=self.headless,
-                args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--single-process"]
-            )
-
-            context = await browser.new_context(
-                user_agent=random.choice(self.USER_AGENTS),
-                viewport={'width': 1280, 'height': 800},
-                locale="zh-TW"
-            )
-            
-            page_obj = await context.new_page()
-
-            # 暴力掃除任何可能擋住點擊的元素
-            await page_obj.add_init_script("""
-                setInterval(() => {
-                    const overlays = document.querySelectorAll('.el-overlay, .v-modal, [id*="auth-modal"], .el-message-box__wrapper');
-                    overlays.forEach(el => el.remove());
-                    document.body.style.overflow = 'auto';
-                }, 500);
-            """)
+            browser = await p.chromium.launch(headless=self.headless)
+            context = await browser.new_context(locale="zh-TW")
+            page = await context.new_page()
 
             try:
-                self.logger.info(f"正在連線至 {target_url}...")
-                await page_obj.goto(target_url, wait_until="domcontentloaded", timeout=120000)
-                await asyncio.sleep(2)
+                self.logger.info(f"正在導航至 8891 第 {page_num} 頁: {target_url}")
+                await page.goto(target_url, wait_until="domcontentloaded", timeout=90000)
+                await asyncio.sleep(random.uniform(2, 4)) # 模擬人類延遲
 
-                # 使用模糊匹配動態 Class 
-                item_selector = 'a[class*="_row-item"]' # 8891 最外層的 A 標籤
-                
-                try:
-                    await page_obj.wait_for_selector(item_selector, timeout=15000, state="attached")
-                except:
-                    self.logger.error("無法定位車輛 A 標籤，請檢查網站結構是否變更")
-                    return []
+                # 等待車輛列表的容器出現
+                list_container_selector = 'div[class*="main-list-container"]'
+                await page.wait_for_selector(list_container_selector, timeout=20000)
 
-                # 捲動加載
-                await page_obj.evaluate("window.scrollBy(0, 1000);")
-                await asyncio.sleep(1)
+                # 找到所有的車輛項目
+                item_selector = 'a[class*="_row-item"]'
+                items = await page.query_selector_all(item_selector)
+                self.logger.info(f"在頁面 {page_num} 上找到 {len(items)} 筆車輛資料，開始解析...")
 
-                items = await page_obj.query_selector_all(item_selector)
-                self.logger.info(f"--- 偵測到 {len(items)} 個原始區塊，開始解析 Pydantic 模型 ---")
-                
                 for item in items:
                     try:
-                        href = await item.get_attribute("href")
-                        if not href: continue
+                        # 1. 抓取最基礎的原始數據
+                        raw_title_element = await item.query_selector('span[class*="_ib-it-text"]')
+                        original_title = await raw_title_element.inner_text() if raw_title_element else "無標題"
                         
-                        full_text = await item.inner_text()
+                        link_href = await item.get_attribute("href") or ""
+                        full_link = f"https://auto.8891.com.tw{link_href}" if link_href.startswith("/") else link_href
                         
-                        # 1. 標題與 ID
-                        title_el = await item.query_selector('span[class*="_ib-it-text"]')
-                        title = (await title_el.inner_text()).strip() if title_el else "未知車款"
-                        ext_id = href.split("id=")[-1].split("&")[0] if "id=" in href else str(random.randint(10000, 99999))
-                        
-                        # 2. 價格解析
-                        price_el = await item.query_selector('span[class*="_ib-price"]')
-                        price_raw = await price_el.inner_text() if price_el else "0"
-                        price_match = RE_PRICE.search(price_raw)
-                        price_val = float(price_match.group(1).replace(',', '')) if price_match else 0.0
+                        external_id = (link_href.split("id=")[-1] if "id=" in link_href else 
+                                       f"fallback_{random.randint(10000, 99999)}")
 
-                        # 3. 年份解析 (從全文本中找 20xx)
-                        year_match = RE_YEAR.search(full_text)
-                        year_val = int(year_match.group(1)) if year_match else 2020
-                        
-                        # 4. 地區與里程解析
-                        info_items = await item.query_selector_all('span[class*="_ib-ii-item"]')
-                        location = "全台"
-                        mileage_raw = "0"
-                        if len(info_items) > 0:
-                            location = (await info_items[0].inner_text()).strip()
-                        if len(info_items) > 1:
-                            mileage_raw = (await info_items[1].inner_text()).strip()
+                        year_text = await item.inner_text()
+                        year_match = re.search(r'(20\d{2})', year_text)
+                        year = int(year_match.group(1)) if year_match else 2000
 
-                        # 建立物件
-                        car = CarListing(
-                            source="8891",
-                            external_id=ext_id,
-                            title=title,
-                            year=max(1990, min(2026, year_val)), 
-                            price=price_val,
-                            mileage=mileage_raw, # Pass raw string to the model for validation
-                            location=location[:3], # 取前三個字如「桃園市」
-                            link=f"https://auto.8891.com.tw{href}" if href.startswith("/") else href
-                        )
-                        results.append(car)
+                        price_element = await item.query_selector('span[class*="_ib-price"]')
+                        price_raw = await price_element.inner_text() if price_element else "0"
+
+                        info_elements = await item.query_selector_all('span[class*="_ib-ii-item"]')
+                        location = await info_elements[0].inner_text() if len(info_elements) > 0 else "未知"
+                        mileage_raw = await info_elements[1].inner_text() if len(info_elements) > 1 else "0"
+                        
+                        # 2. 組裝原始數據字典，準備清洗
+                        raw_data_for_cleaning = {
+                            "original_title": original_title,
+                            "price": price_raw,
+                            "mileage": mileage_raw,
+                        }
+
+                        # 3. 調用核心清洗函數
+                        cleaned_data = clean_car_data(raw_data_for_cleaning)
+
+                        # 4. 合併所有數據並實例化 Pydantic 模型
+                        final_data = {
+                            "source": self.SOURCE_NAME,
+                            "external_id": external_id,
+                            "link": full_link,
+                            "year": year,
+                            "location": location.strip(),
+                            "original_title": original_title, # 保存原始標題
+                            **cleaned_data # 合併清洗後的所有欄位
+                        }
+                        
+                        car_listing = CarListing(**final_data)
+                        results.append(car_listing)
+
                     except Exception as e:
-                        # 如果某筆失敗，印出原因以便修正模型定義
-                        self.logger.debug(f"單筆模型驗證失敗: {e}")
+                        self.logger.error(f"解析單筆 8891 車輛數據時出錯: {e}")
+                        # 繼續處理下一筆，而不是中斷整個過程
                         continue
+            
             finally:
                 await browser.close()
+                
+        self.logger.info(f"完成頁面 {page_num} 的抓取，共獲得 {len(results)} 筆有效數據。")
         return results

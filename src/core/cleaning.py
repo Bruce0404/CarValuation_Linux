@@ -1,126 +1,167 @@
-from __future__ import annotations
 import re
-import unicodedata
 import json
 import os
+import unicodedata
+from typing import Dict, Any, Tuple
 from loguru import logger
-from typing import Tuple
 
-# --- 移植自舊專案 lib/utils.py ---
+# --- 核心清洗與數值轉換函數 ---
 
-def refine_original_name(raw_name: str) -> str:
+def parse_unit_value(value_str: Any) -> float:
     """
-    清洗標題，移除行銷雜訊 (移植自 lib/utils.py)
+    通用解析函數，用於處理帶有'萬'單位的價格或里程數。
+    例如： "15.8萬" -> 15.8, "6萬公里" -> 6.0, 15.8 -> 15.8
+    @param value_str: 包含數值的字符串或數字。
+    @return: 轉換後的浮點數。若無法解析則返回 0.0。
     """
-    if not raw_name or not isinstance(raw_name, str):
+    if isinstance(value_str, (int, float)):
+        return float(value_str)
+    
+    if not isinstance(value_str, str):
+        return 0.0
+
+    # 移除逗號和空白
+    cleaned_str = value_str.replace(',', '').strip()
+    
+    # 使用正則表達式提取數字部分
+    match = re.search(r'(\d+\.?\d*)', cleaned_str)
+    if not match:
+        return 0.0
+        
+    try:
+        # 即使輸入是 "168000", 也只取 168000 這個數字
+        return float(match.group(1))
+    except (ValueError, TypeError):
+        logger.warning(f"無法將 '{value_str}' 解析為數字，已返回 0.0")
+        return 0.0
+
+def refine_title(raw_title: str) -> str:
+    """
+    清洗原始標題，移除行銷術語、HTML標籤和其他噪音。
+    @param raw_title: 爬蟲抓取的原始標題。
+    @return: 清洗後的標題。
+    """
+    if not isinstance(raw_title, str):
         return ""
 
-    # 1. 移除常見的 8891 網頁抓取雜訊
-    refined = re.sub(r"距離您.*", "", raw_name)
+    # 移除 HTML 標籤
+    text = re.sub(r'<[^>]+>', '', raw_title)
+    # 移除特殊引號和內容
+    text = re.sub(r'「[^」]*」', '', text)
+    # 移除【】中的特定詞語
+    text = re.sub(r'[【\[](?:總代理|自售|認證|實車實價)[】\]]', '', text)
+    # 全形轉半形
+    text = unicodedata.normalize('NFKC', text)
+    # 移除多餘的空格
+    text = ' '.join(text.split())
     
-    # 2. 移除重複的價格與年份標籤
-    refined = re.sub(r"\d+\.?\d*萬.*", "", refined)
-    refined = re.sub(r"20\d{2}年.*", "", refined)
+    return text.strip()
 
-    # 3. 移除行銷雜訊 (可擴充)
-    marketing_keywords = [
-        r"\d+歲即可貸", r"低利率", r"強力過件", r"信用小白", r"全額貸"
-    ]
-    refined = re.sub(r"(?i)(" + "|".join(marketing_keywords) + r").*", "", refined)
-
-    # 4. 截斷邏輯
-    return refined.split('「')[0].strip()
-
-def parse_mileage(mileage_str: str | int | float) -> float:
-    """
-    將里程數從字串 (e.g., "2.8萬公里") 轉換為數字 (28000.0)
-    """
-    if isinstance(mileage_str, (int, float)):
-        return float(mileage_str)
-    
-    if not isinstance(mileage_str, str):
-        return 0.0
-
-    mileage_str = mileage_str.strip()
-    
-    try:
-        # Case 1: "2.8萬公里" or "2.8萬"
-        if "萬" in mileage_str:
-            num_part = re.search(r"(\d+\.?\d*)", mileage_str)
-            if num_part:
-                return float(num_part.group(1)) * 10000
-        
-        # Case 2: "28000公里" or "28000"
-        else:
-            num_part = re.search(r"(\d+\.?\d*)", mileage_str)
-            if num_part:
-                return float(num_part.group(1))
-    except (ValueError, TypeError):
-        return 0.0
-        
-    return 0.0
-
+# --- 品牌與車系識別 ---
 
 class CarIdentifier:
     """
-    品牌與車系識別器 (邏輯移植自 lib/utils.py CarIdentifier)
+    通過加載配置文件，從標題中識別車輛的品牌和車系。
+    這是一個單例模式的實現，以避免重複加載配置。
     """
-    def __init__(self, config_dir="config"):
-        self.brand_map = {}
-        self.series_lookup = {}
-        # 預設載入
-        self._load_config(config_dir)
+    _instance = None
 
-    def _load_config(self, config_dir):
-        # 載入 brand_map.json
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(CarIdentifier, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self, config_dir: str = "config"):
+        # 防止重複初始化
+        if hasattr(self, 'initialized'):
+            return
+            
+        self.brand_map = self._load_json(os.path.join(config_dir, "brand_map.json"), "BRAND_MAP")
+        self.series_lookup = self._load_series_configs(os.path.join(config_dir, "series"))
+        self.initialized = True
+        logger.info("品牌/車系識別器已初始化完成")
+
+    def _load_json(self, path: str, key: str) -> Dict:
         try:
-            with open(os.path.join(config_dir, "brand_map.json"), "r", encoding="utf-8") as f:
-                self.brand_map = json.load(f).get("BRAND_MAP", {})
-        except Exception:
-            logger.warning("⚠️ 找不到 brand_map.json，品牌識別將受限")
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f).get(key, {})
+        except FileNotFoundError:
+            logger.warning(f"配置文件未找到: {path}")
+            return {}
+        except Exception as e:
+            logger.error(f"加載 {path} 失敗: {e}")
+            return {}
 
-        # 載入 series/*.json
-        series_dir = os.path.join(config_dir, "series")
-        if os.path.exists(series_dir):
-            for fname in os.listdir(series_dir):
-                if fname.endswith(".json"):
-                    brand_key = fname.replace(".json", "").upper()
-                    try:
-                        with open(os.path.join(series_dir, fname), "r", encoding="utf-8") as f:
-                            self.series_lookup[brand_key] = json.load(f)
-                    except Exception as e:
-                        logger.error(f"無法讀取車系檔 {fname}: {e}")
+    def _load_series_configs(self, series_dir: str) -> Dict:
+        series_lookup = {}
+        if not os.path.isdir(series_dir):
+            logger.warning(f"車系配置目錄未找到: {series_dir}")
+            return series_lookup
+            
+        for fname in os.listdir(series_dir):
+            if fname.endswith(".json"):
+                brand_key = fname.replace(".json", "").upper()
+                series_lookup[brand_key] = self._load_json(os.path.join(series_dir, fname), None)
+        return series_lookup
 
-    def _clean_title(self, title: str) -> str:
-        text = unicodedata.normalize('NFKC', title)
-        text = re.sub(r"[【\[《『](?:置頂|總代理|自售|實車實價|HOT|SAVE|SUM)[】\]》』]?", "", text)
-        return re.sub(r"\s+", " ", text).lower().strip()
-
-    def identify(self, title: str, original_brand: str = "UNKNOWN") -> Tuple[str, str]:
+    def identify(self, title: str) -> Tuple[str, str]:
         """
-        輸入標題，回傳 (品牌, 車系)
+        從給定的標題中識別品牌和車系。
+        @param title: 清洗過的車輛標題。
+        @return: 一個包含 (品牌, 車系) 的元組。
         """
-        clean_title = self._clean_title(title)
-        
-        # 1. 簡單品牌辨識 (可擴充舊專案的複雜邏輯)
-        brand = original_brand
+        # 預設值
+        brand, series = "UNKNOWN", "其他"
+
+        # 1. 識別品牌
         for b_name, b_regex in self.brand_map.items():
-            if re.search(b_regex, clean_title, re.IGNORECASE):
+            if re.search(b_regex, title, re.IGNORECASE):
                 brand = b_name
                 break
         
-        # 2. 車系辨識
-        series = "其他"
-        brand_key = str(brand).upper()
-        
-        if brand_key in self.series_lookup:
-            # 尋找最長匹配的關鍵字
+        # 2. 如果找到品牌，則繼續識別車系
+        if brand != "UNKNOWN" and brand.upper() in self.series_lookup:
             best_match_len = 0
-            for s_name, keywords in self.series_lookup[brand_key].items():
+            for s_name, keywords in self.series_lookup[brand.upper()].items():
                 for kw in keywords:
-                    if kw.lower() in clean_title:
+                    if kw.lower() in title.lower():
                         if len(kw) > best_match_len:
                             best_match_len = len(kw)
                             series = s_name
         
         return brand, series
+
+# --- 主協調函數 ---
+
+# 初始化一個全域的識別器實例
+car_identifier = CarIdentifier(config_dir="config")
+
+def clean_car_data(raw_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    協調所有清洗步驟的主函數。
+    接收爬蟲抓取的原始字典，返回一個結構化、清洗過的字典。
+    
+    @param raw_data: 包含 'original_title', 'price', 'mileage' 等鍵的原始字典。
+    @return: 包含 'processed_title', 'brand', 'series', 'price', 'mileage' 等鍵的清洗後字典。
+    """
+    original_title = raw_data.get("original_title", "")
+    
+    # 1. 清洗標題
+    processed_title = refine_title(original_title)
+    
+    # 2. 識別品牌和車系
+    brand, series = car_identifier.identify(processed_title)
+    
+    # 3. 解析價格和里程
+    price = parse_unit_value(raw_data.get("price"))
+    mileage = parse_unit_value(raw_data.get("mileage"))
+    
+    # 4. 組裝並返回結果
+    # 這裡只返回清洗後產生的新數據，原始數據（如 external_id, link, year）應由調用方合併
+    return {
+        "processed_title": processed_title,
+        "brand": brand,
+        "series": series,
+        "price": price,
+        "mileage": mileage,
+    }
