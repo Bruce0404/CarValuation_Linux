@@ -47,7 +47,7 @@ class SupabaseManager:
             # 執行 upsert 操作
             response = self.client.table(table_name).upsert(
                 data_to_upsert,
-                on_conflict="external_id"  # 指定 'external_id' 為衝突判斷的唯一鍵
+                on_conflict="external_id,source_platform"  # 指定 'external_id' 和 'source_platform' 為衝突判斷的複合鍵
             ).execute()
             
             # 檢查 API 返回的數據
