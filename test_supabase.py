@@ -32,15 +32,18 @@ def run_test():
         supabase_manager = SupabaseManager()
         logger.info("SupabaseManager 初始化成功。")
 
-        # 2. 準備測試數據 (與新的 CarListing 模型對齊)
+        # 2. 準備測試數據 (與最新的 CarListing 必填欄位完全對齊)
         test_data = [
             CarListing(
                 external_id="test-car-001",
                 link="https://example.com/car/001",
+                brand="TestBrand",
+                series="TestSeries-Sedan", # 必填
+                year=2023,                  # 必填
+                mileage_wan=5.5,            # 必填
                 original_name="【測試車輛】豪華版轎車",
                 model_name="Test Sedan Deluxe",
                 price_wan=88.8,
-                mileage_wan=5.5,
                 color="白色",
                 engine_displacement=1998,
                 fuel_type="汽油",
@@ -53,10 +56,13 @@ def run_test():
             CarListing(
                 external_id="test-car-002",
                 link="https://example.com/car/002",
+                brand="TestBrand",
+                series="TestSeries-SUV",     # 必填
+                year=2021,                  # 必填
+                mileage_wan=2.1,            # 必填
                 original_name="【測試更新】運動休旅",
                 model_name="Test SUV Sport",
                 price_wan=120.5,
-                mileage_wan=2.1,
                 color="黑色",
                 engine_displacement=2999,
                 fuel_type="柴油",
@@ -69,10 +75,13 @@ def run_test():
              CarListing(
                 external_id="test-car-003",
                 link="https://example.com/car/003",
+                brand="TestBrand",
+                series="TestSeries-Wagon",  # 必填
+                year=2024,                  # 必填
+                mileage_wan=1.1,            # 必填
                 original_name="【稀有旅行車】",
                 model_name="Test Wagon Rare",
                 price_wan=150.0,
-                mileage_wan=1.1,
                 color="藍色",
                 engine_displacement=2498,
                 fuel_type="油電",
