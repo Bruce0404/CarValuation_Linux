@@ -5,18 +5,21 @@ import unicodedata
 import os
 from typing import List
 from playwright.async_api import async_playwright
-from src.platforms.base import 
+from src.platforms.base import BaseCrawler
 from src.models.car import CarListing
 
 # Regex 規則 (解析價格與年份)
 RE_PRICE = re.compile(r'([\d,]+\.?\d*)\s*萬(?!\s*公里)')
 RE_YEAR = re.compile(r'(20\d{2})')
 
-class Crawler8891():
+class Crawler8891(BaseCrawler):
     BASE_URL = "https://auto.8891.com.tw/usedauto-index.html"
     USER_AGENTS = [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
     ]
+
+    def __init__(self, headless: bool = True):
+        super().__init__(headless)
 
     async def fetch_listings(self, page: int = 1) -> List[CarListing]:
         results = []

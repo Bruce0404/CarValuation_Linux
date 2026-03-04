@@ -1,100 +1,107 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
-import json
-from datetime import datetime
 from dotenv import load_dotenv
 from loguru import logger
 
-# -- Path Setup --
-# 當從根目錄執行 'python3 test_supabase.py' 時，確保 src/ 套件可以被導入
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
+# --- 專案根目錄設定 ---
+# 確保腳本在專案根目錄下執行時，能夠正確導入 src 中的模組
 try:
-    from src.models.car import CarListing
+    # 這會將當前腳本的目錄添加到 sys.path
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(current_dir, '..'))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+    
     from src.database.supabase_client import SupabaseManager
-except ModuleNotFoundError:
-    logger.error("重要模組導入失敗。請確認您是從專案的根目錄 (CarValuation-V2) 執行此腳本。")
+    from src.models.car import CarListing
+
+except ImportError as e:
+    logger.error(f"重要模組導入失敗。請確認您是從專案的根目錄執行此腳本。")
     logger.error(f"目前的 sys.path: {sys.path}")
     sys.exit(1)
 
-# -- Configuration --
-# 從 .env 檔案載入環境變數
-load_dotenv()
-
-# 設定 Loguru
-logger.remove()
-logger.add(sys.stderr, level="INFO")
-logger.add("logs/test_supabase_{time}.log", level="DEBUG", rotation="10 MB")
-
-
-def run_supabase_test():
+def run_test():
     """
-    執行一個完整的 Supabase 連線與資料上傳 (upsert) 測試。
+    執行 Supabase 連線與資料上傳測試。
     """
-    logger.info("--- 開始 Supabase 連線測試 ---")
+    load_dotenv()
+    logger.info("開始執行 Supabase 連線測試...")
 
-    # 1. 建立測試用的 CarListing 物件
     try:
-        test_car = CarListing(
-            source="supabase-test-regenerated",
-            external_id=f"test-{datetime.now().strftime('%Y%m%d%H%M%S')}",
-            original_title="[Test] Regenerated Test Car",
-            link="https://example.com/test-car-dont-delete-regenerated",
-            brand="UNKNOWN",
-            series="其他",
-            processed_title="[Test] Regenerated Test Car",
-            year=2025,
-            price=88.8,
-            mileage=5.0,
-            location="虛擬城市",
-            crawled_at=datetime.now()
-        )
-        logger.info("成功建立測試 CarListing 物件。")
-    except Exception as e:
-        logger.error(f"建立 CarListing 物件失敗: {e}")
-        return
-
-    # 2. 將物件轉換為字典，準備上傳
-    # 使用 .model_dump() 而非 .dict() (Pydantic V2+)
-    try:
-        # Pydantic V2 uses model_dump()
-        car_data_dict = test_car.model_dump()
-        # Loguru 會自動處理 JSON 格式化，此處僅為示範
-        pretty_json = json.dumps(
-            car_data_dict,
-            indent=2,
-            ensure_ascii=False,
-            default=str # for datetime object
-        )
-        logger.info(f"即將發送的測試資料:\n{pretty_json}")
-    except Exception as e:
-        logger.error(f"將 Pydantic 物件轉換為字典時發生錯誤: {e}")
-        return
-
-    # 3. 初始化 Supabase 管理器
-    logger.info("正在初始化 SupabaseManager...")
-    try:
+        # 1. 初始化 Supabase 管理器
         supabase_manager = SupabaseManager()
+        logger.info("SupabaseManager 初始化成功。")
+
+        # 2. 準備測試數據 (與新的 CarListing 模型對齊)
+        test_data = [
+            CarListing(
+                external_id="test-car-001",
+                link="https://example.com/car/001",
+                original_name="【測試車輛】豪華版轎車",
+                model_name="Test Sedan Deluxe",
+                price_wan=88.8,
+                mileage_wan=5.5,
+                color="白色",
+                engine_displacement=1998,
+                fuel_type="汽油",
+                source_platform="test_script",
+                is_verified=True,
+                is_wagon=False,
+                has_4wd=False,
+                image_url="https://example.com/img/001.jpg"
+            ),
+            CarListing(
+                external_id="test-car-002",
+                link="https://example.com/car/002",
+                original_name="【測試更新】運動休旅",
+                model_name="Test SUV Sport",
+                price_wan=120.5,
+                mileage_wan=2.1,
+                color="黑色",
+                engine_displacement=2999,
+                fuel_type="柴油",
+                source_platform="test_script",
+                is_verified=False,
+                is_wagon=False,
+                has_4wd=True,
+                image_url="https://example.com/img/002.jpg"
+            ),
+             CarListing(
+                external_id="test-car-003",
+                link="https://example.com/car/003",
+                original_name="【稀有旅行車】",
+                model_name="Test Wagon Rare",
+                price_wan=150.0,
+                mileage_wan=1.1,
+                color="藍色",
+                engine_displacement=2498,
+                fuel_type="油電",
+                source_platform="test_script",
+                is_verified=True,
+                is_wagon=True,
+                has_4wd=True,
+                image_url="https://example.com/img/003.jpg"
+            )
+        ]
+        logger.info(f"已準備 {len(test_data)} 筆測試數據。")
+
+        # 3. 執行批量上傳/更新操作
+        supabase_manager.batch_upsert_cars(test_data, table_name="market_listings")
+        
+        logger.success("Supabase batch_upsert_cars 測試執行完畢。請至 Supabase 後台檢查 'market_listings' 表格中的數據。")
+
+    except ValueError as ve:
+        logger.error(f"環境變數設定錯誤: {ve}")
     except Exception as e:
-        logger.error(f"初始化 SupabaseManager 失敗: {e}")
-        return
-
-    # 4. 執行批次上傳/更新
-    logger.info("正在嘗試上傳測試資料至 'market_listings' 資料表...")
-    try:
-        # batch_upsert_cars 需要一個字典列表
-        supabase_manager.batch_upsert_cars([car_data_dict])
-    except Exception as e:
-        # SupabaseManager 內部已有詳細的錯誤日誌，這裡只記錄測試失敗
-        logger.error(f"測試過程中，執行 batch_upsert_cars 失敗。請檢查上方由 SupabaseManager 提供的錯誤日誌。")
-        return
-
-    logger.success("--- Supabase 連線測試成功結束 ---")
-    logger.info("請檢查您在 Supabase 的 'market_listings' 資料表，確認資料已成功插入/更新。")
-
+        logger.error(f"測試過程中發生未預期的錯誤: {e}")
 
 if __name__ == "__main__":
-    run_supabase_test()
+    # 配置 Loguru
+    logger.add(
+        "logs/test_supabase.log",
+        rotation="10 MB",
+        retention="7 days",
+        level="INFO",
+        format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}"
+    )
+    run_test()

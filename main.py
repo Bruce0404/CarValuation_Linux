@@ -4,6 +4,8 @@ import sys
 import os
 from loguru import logger
 
+
+
 # 確保可以找到 src 模組
 sys.path.append(os.getcwd())
 
@@ -15,7 +17,7 @@ class CarBotCLI:
     def crawl(self, source: str = '8891', pages: int = 1, headless: bool = True):
         """
         執行爬蟲任務
-        :param source: 來源平台 (預設 8891)
+        :param  : 來源平台 (預設 8891)
         :param pages: 抓取頁數
         :param headless: 是否隱藏瀏覽器 (WSL 環境建議設為 True，除非您有設定 X-Server)
         """

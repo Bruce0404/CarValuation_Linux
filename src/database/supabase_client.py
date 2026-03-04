@@ -62,4 +62,5 @@ class SupabaseManager:
             # 某些 Supabase 錯誤會包含更詳細的 'details'
             if hasattr(e, 'details'):
                 logger.error(f"錯誤詳情: {e.details}")
+            raise
 
